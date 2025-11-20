@@ -154,27 +154,43 @@ Provide 3-5 homeopathic medicine recommendations, ordered by best match.`;
     
     // Search for local stores if location is provided
     let localStores = [];
+    console.log('Location provided:', location);
+    
     if (location && location.trim()) {
       const GOOGLE_PLACES_API_KEY = Deno.env.get('GOOGLE_PLACES_API_KEY');
+      console.log('Google Places API key exists:', !!GOOGLE_PLACES_API_KEY);
+      
       if (GOOGLE_PLACES_API_KEY) {
         try {
-          const placesResponse = await fetch(
-            `https://maps.googleapis.com/maps/api/place/textsearch/json?query=homeopathic+medicine+store+${encodeURIComponent(location)}&key=${GOOGLE_PLACES_API_KEY}`
-          );
+          const placesUrl = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=homeopathic+medicine+store+${encodeURIComponent(location)}&key=${GOOGLE_PLACES_API_KEY}`;
+          console.log('Calling Google Places API for location:', location);
+          
+          const placesResponse = await fetch(placesUrl);
           
           if (placesResponse.ok) {
             const placesData = await placesResponse.json();
+            console.log('Places API response status:', placesData.status);
+            console.log('Number of results:', placesData.results?.length || 0);
+            
             localStores = (placesData.results || []).slice(0, 5).map((place: any) => ({
               name: place.name,
               address: place.formatted_address,
               rating: place.rating,
               openNow: place.opening_hours?.open_now
             }));
+            
+            console.log('Local stores found:', localStores.length);
+          } else {
+            console.error('Places API error:', placesResponse.status, await placesResponse.text());
           }
         } catch (error) {
           console.error('Error fetching local stores:', error);
         }
+      } else {
+        console.log('Google Places API key not configured');
       }
+    } else {
+      console.log('No location provided by user');
     }
     
     // Generate Amazon search URLs for each medicine
@@ -187,6 +203,8 @@ Provide 3-5 homeopathic medicine recommendations, ordered by best match.`;
       };
     });
 
+    console.log('Returning response with', recommendationsWithUrls.length, 'recommendations and', localStores.length, 'local stores');
+    
     return new Response(
       JSON.stringify({ 
         recommendations: recommendationsWithUrls,
