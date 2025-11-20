@@ -62,7 +62,7 @@ export const RecommendationResults = ({ recommendations, localStores, onNewSearc
                 </div>
               </CardHeader>
               <CardContent className="space-y-3 pt-4 flex-1 flex flex-col">
-                <div className="flex-1">
+                <div>
                   <h3 className="font-semibold text-sm mb-2 flex items-center gap-2">
                     <Info className="h-4 w-4 text-primary" />
                     About This Remedy
