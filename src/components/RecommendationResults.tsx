@@ -14,94 +14,110 @@ export interface Recommendation {
 }
 
 interface RecommendationResultsProps {
-  recommendation: Recommendation;
+  recommendations: Recommendation[];
   onNewSearch: () => void;
 }
 
-export const RecommendationResults = ({ recommendation, onNewSearch }: RecommendationResultsProps) => {
+export const RecommendationResults = ({ recommendations, onNewSearch }: RecommendationResultsProps) => {
   return (
-    <div className="w-full max-w-4xl mx-auto space-y-6 animate-in fade-in duration-700">
-      <Card className="shadow-medium border-primary/20">
-        <CardHeader className="bg-gradient-hero">
-          <div className="flex items-start justify-between">
-            <div className="space-y-2">
-              <CardTitle className="text-3xl flex items-center gap-2">
-                <Package className="h-8 w-8 text-primary" />
-                {recommendation.medicineName}
-              </CardTitle>
-              <CardDescription className="text-base">
-                Recommended homeopathic remedy based on your symptoms
-              </CardDescription>
-            </div>
-            <Badge variant="secondary" className="text-base px-4 py-2">
-              {recommendation.potency}
-            </Badge>
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-6 pt-6">
-          <div>
-            <h3 className="font-semibold text-lg mb-2 flex items-center gap-2">
-              <Info className="h-5 w-5 text-primary" />
-              About This Remedy
-            </h3>
-            <p className="text-muted-foreground leading-relaxed">{recommendation.description}</p>
-          </div>
+    <div className="w-full max-w-6xl mx-auto space-y-6 animate-in fade-in duration-700">
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-2xl font-bold text-foreground">
+          {recommendations.length} Recommended Options
+        </h2>
+        <Button variant="outline" onClick={onNewSearch}>
+          New Search
+        </Button>
+      </div>
 
-          <div>
-            <h3 className="font-semibold text-lg mb-3">Recommended Dosage</h3>
-            <p className="text-foreground bg-muted px-4 py-3 rounded-lg">{recommendation.dosage}</p>
-          </div>
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        {recommendations.map((recommendation, index) => (
+          <Card key={index} className="shadow-medium border-primary/20 flex flex-col">
+            <CardHeader className="bg-gradient-hero">
+              <div className="space-y-2">
+                <div className="flex items-start justify-between gap-2">
+                  <CardTitle className="text-xl flex items-center gap-2">
+                    <Package className="h-6 w-6 text-primary flex-shrink-0" />
+                    <span className="line-clamp-2">{recommendation.medicineName}</span>
+                  </CardTitle>
+                </div>
+                <Badge variant="secondary" className="text-sm px-3 py-1 w-fit">
+                  {recommendation.potency}
+                </Badge>
+                {index === 0 && (
+                  <Badge className="bg-primary text-primary-foreground w-fit">
+                    Best Match
+                  </Badge>
+                )}
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-4 pt-4 flex-1 flex flex-col">
+              <div className="flex-1">
+                <h3 className="font-semibold text-sm mb-2 flex items-center gap-2">
+                  <Info className="h-4 w-4 text-primary" />
+                  About This Remedy
+                </h3>
+                <p className="text-sm text-muted-foreground leading-relaxed line-clamp-4">
+                  {recommendation.description}
+                </p>
+              </div>
 
-          {recommendation.benefits.length > 0 && (
-            <div>
-              <h3 className="font-semibold text-lg mb-3">Key Benefits</h3>
-              <ul className="space-y-2">
-                {recommendation.benefits.map((benefit, index) => (
-                  <li key={index} className="flex items-start gap-2">
-                    <span className="text-secondary text-xl">•</span>
-                    <span className="text-muted-foreground">{benefit}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
+              <div>
+                <h3 className="font-semibold text-sm mb-2">Dosage</h3>
+                <p className="text-xs text-foreground bg-muted px-3 py-2 rounded-lg line-clamp-3">
+                  {recommendation.dosage}
+                </p>
+              </div>
 
-          {recommendation.considerations.length > 0 && (
-            <div className="bg-amber-50 dark:bg-amber-950/20 p-4 rounded-lg border border-amber-200 dark:border-amber-900">
-              <h3 className="font-semibold text-lg mb-3 text-amber-900 dark:text-amber-100">
-                Important Considerations
-              </h3>
-              <ul className="space-y-2">
-                {recommendation.considerations.map((consideration, index) => (
-                  <li key={index} className="flex items-start gap-2">
-                    <span className="text-amber-600 dark:text-amber-400 text-xl">•</span>
-                    <span className="text-amber-800 dark:text-amber-200 text-sm">{consideration}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
+              {recommendation.benefits.length > 0 && (
+                <div>
+                  <h3 className="font-semibold text-sm mb-2">Key Benefits</h3>
+                  <ul className="space-y-1">
+                    {recommendation.benefits.slice(0, 3).map((benefit, idx) => (
+                      <li key={idx} className="flex items-start gap-2">
+                        <span className="text-secondary text-sm">•</span>
+                        <span className="text-xs text-muted-foreground line-clamp-2">{benefit}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
 
-          <div className="flex gap-4 pt-4">
-            <Button
-              variant="hero"
-              size="lg"
-              className="flex-1"
-              onClick={() => window.open(recommendation.amazonUrl, "_blank")}
-            >
-              <ExternalLink className="h-5 w-5" />
-              Purchase on Amazon
-            </Button>
-            <Button variant="outline" size="lg" onClick={onNewSearch}>
-              New Search
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+              {recommendation.considerations.length > 0 && (
+                <div className="bg-amber-50 dark:bg-amber-950/20 p-3 rounded-lg border border-amber-200 dark:border-amber-900">
+                  <h3 className="font-semibold text-sm mb-2 text-amber-900 dark:text-amber-100">
+                    Considerations
+                  </h3>
+                  <ul className="space-y-1">
+                    {recommendation.considerations.slice(0, 2).map((consideration, idx) => (
+                      <li key={idx} className="flex items-start gap-2">
+                        <span className="text-amber-600 dark:text-amber-400 text-sm">•</span>
+                        <span className="text-amber-800 dark:text-amber-200 text-xs line-clamp-2">
+                          {consideration}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              <Button
+                variant="hero"
+                size="sm"
+                className="w-full mt-auto"
+                onClick={() => window.open(recommendation.amazonUrl, "_blank")}
+              >
+                <ExternalLink className="h-4 w-4" />
+                View on Amazon
+              </Button>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
 
       <div className="text-center text-sm text-muted-foreground bg-card p-4 rounded-lg border">
         <p>
-          <strong>Disclaimer:</strong> This recommendation is for informational purposes only. Always consult with a
+          <strong>Disclaimer:</strong> These recommendations are for informational purposes only. Always consult with a
           qualified healthcare professional before starting any new treatment.
         </p>
       </div>

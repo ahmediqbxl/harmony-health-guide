@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import heroImage from "@/assets/hero-homeopathy.jpg";
 
 const Index = () => {
-  const [recommendation, setRecommendation] = useState<Recommendation | null>(null);
+  const [recommendations, setRecommendations] = useState<Recommendation[] | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (data: SymptomData) => {
@@ -31,8 +31,8 @@ const Index = () => {
       }
 
       const aiRecommendation = await response.json();
-      setRecommendation(aiRecommendation);
-      toast.success("AI recommendation ready!");
+      setRecommendations(aiRecommendation.recommendations);
+      toast.success(`${aiRecommendation.recommendations.length} AI recommendations ready!`);
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Failed to get recommendation. Please try again.");
       console.error(error);
@@ -42,13 +42,13 @@ const Index = () => {
   };
 
   const handleNewSearch = () => {
-    setRecommendation(null);
+    setRecommendations(null);
   };
 
   return (
     <div className="min-h-screen bg-gradient-hero">
       {/* Hero Section */}
-      {!recommendation && (
+      {!recommendations && (
         <section className="relative py-20 px-4 overflow-hidden">
           <div className="absolute inset-0 opacity-20">
             <img
@@ -93,8 +93,8 @@ const Index = () => {
 
       {/* Main Content */}
       <section className="py-12 px-4">
-        {recommendation ? (
-          <RecommendationResults recommendation={recommendation} onNewSearch={handleNewSearch} />
+        {recommendations ? (
+          <RecommendationResults recommendations={recommendations} onNewSearch={handleNewSearch} />
         ) : (
           <SymptomForm onSubmit={handleSubmit} isLoading={isLoading} />
         )}
