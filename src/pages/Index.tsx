@@ -18,6 +18,7 @@ const Index = () => {
         {
           body: {
             symptoms: data.symptoms,
+            severity: data.severity,
             existingConditions: data.conditions,
             additionalInfo: data.additionalInfo,
             location: data.location,

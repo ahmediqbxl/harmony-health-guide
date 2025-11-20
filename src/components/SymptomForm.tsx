@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Loader2 } from "lucide-react";
 
 interface SymptomFormProps {
@@ -12,6 +13,7 @@ interface SymptomFormProps {
 
 export interface SymptomData {
   symptoms: string;
+  severity: string;
   conditions: string;
   additionalInfo: string;
   location?: string;
@@ -20,6 +22,7 @@ export interface SymptomData {
 export const SymptomForm = ({ onSubmit, isLoading }: SymptomFormProps) => {
   const [formData, setFormData] = useState<SymptomData>({
     symptoms: "",
+    severity: "moderate",
     conditions: "",
     additionalInfo: "",
     location: "",
@@ -51,6 +54,24 @@ export const SymptomForm = ({ onSubmit, isLoading }: SymptomFormProps) => {
               rows={4}
               className="resize-none"
             />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="severity">Symptom Severity *</Label>
+            <Select 
+              value={formData.severity} 
+              onValueChange={(value) => setFormData({ ...formData, severity: value })}
+            >
+              <SelectTrigger id="severity">
+                <SelectValue placeholder="Select severity" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="mild">Mild - Minor discomfort, doesn't interfere with daily activities</SelectItem>
+                <SelectItem value="moderate">Moderate - Noticeable discomfort, some impact on daily life</SelectItem>
+                <SelectItem value="severe">Severe - Significant discomfort, major impact on daily activities</SelectItem>
+                <SelectItem value="acute">Acute - Sudden onset, intense symptoms requiring immediate attention</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="space-y-2">

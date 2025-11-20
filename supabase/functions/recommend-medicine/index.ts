@@ -12,7 +12,7 @@ serve(async (req) => {
   }
 
   try {
-    const { symptoms, existingConditions, additionalInfo, age, gender, location } = await req.json();
+    const { symptoms, severity, existingConditions, additionalInfo, age, gender, location } = await req.json();
     
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
     if (!LOVABLE_API_KEY) {
@@ -27,14 +27,20 @@ Important guidelines:
 - Match symptom patterns to remedy pictures
 - Consider constitutional factors (age, gender, temperament)
 - Recommend classical single remedies
-- Provide appropriate potencies (typically 6C, 30C, or 200C)
-- Include clear dosage instructions
+- Provide appropriate potencies based on symptom severity and chronicity:
+  * Mild symptoms: Lower potencies (6C, 12C) taken more frequently
+  * Moderate symptoms: Medium potencies (30C) 2-3 times daily
+  * Severe/Acute symptoms: Higher potencies (200C) once or twice daily
+  * Chronic conditions: May require higher potencies less frequently
+- Include clear dosage instructions tailored to severity
 - Emphasize safety and when to seek professional care
 - Order recommendations by best match to symptoms
+- IMPORTANT: Provide a clear explanation for why each specific potency was chosen based on the patient's symptom severity and presentation
 
 Always structure each recommendation with:
 - Remedy name (Latin name + common name if applicable)
 - Potency recommendation
+- A specific explanation of why this potency was selected for this patient
 - Detailed dosage instructions
 - Clear description of why this remedy matches
 - Expected benefits
@@ -43,12 +49,13 @@ Always structure each recommendation with:
     const userPrompt = `Please analyze these symptoms and recommend 3-5 appropriate homeopathic medicines:
 
 Symptoms: ${symptoms}
+Severity: ${severity || 'moderate'}
 ${existingConditions ? `Existing conditions: ${existingConditions}` : ''}
 ${additionalInfo ? `Additional information: ${additionalInfo}` : ''}
 Age: ${age}
 Gender: ${gender}
 
-Provide 3-5 homeopathic medicine recommendations, ordered by best match.`;
+Provide 3-5 homeopathic medicine recommendations, ordered by best match. Make sure to explain why each specific potency was chosen based on the symptom severity and patient presentation.`;
 
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
@@ -85,6 +92,10 @@ Provide 3-5 homeopathic medicine recommendations, ordered by best match.`;
                           type: 'string',
                           description: 'The recommended potency (e.g., 6C, 30C, 200C)'
                         },
+                        potencyExplanation: {
+                          type: 'string',
+                          description: 'Clear explanation of why this specific potency was chosen based on symptom severity, acuteness, and patient presentation (2-3 sentences)'
+                        },
                         dosage: {
                           type: 'string',
                           description: 'Detailed dosage instructions including frequency and duration'
@@ -104,7 +115,7 @@ Provide 3-5 homeopathic medicine recommendations, ordered by best match.`;
                           description: 'Important safety considerations and guidance (3-5 items)'
                         }
                       },
-                      required: ['medicineName', 'potency', 'dosage', 'description', 'benefits', 'considerations'],
+                      required: ['medicineName', 'potency', 'potencyExplanation', 'dosage', 'description', 'benefits', 'considerations'],
                       additionalProperties: false
                     },
                     minItems: 3,
