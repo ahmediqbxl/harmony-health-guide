@@ -46,7 +46,7 @@ export const RecommendationResults = ({ recommendations, localStores, onNewSearc
                 <div className="flex items-start justify-between gap-2">
                   <CardTitle className="text-xl flex items-center gap-2">
                     <Package className="h-6 w-6 text-primary flex-shrink-0" />
-                    <span className="line-clamp-2">{recommendation.medicineName}</span>
+                    <span className="break-words">{recommendation.medicineName}</span>
                   </CardTitle>
                 </div>
                 <Badge variant="secondary" className="text-sm px-3 py-1 w-fit">
@@ -65,26 +65,26 @@ export const RecommendationResults = ({ recommendations, localStores, onNewSearc
                   <Info className="h-4 w-4 text-primary" />
                   About This Remedy
                 </h3>
-                <p className="text-sm text-muted-foreground leading-relaxed line-clamp-4">
+                <div className="text-sm text-muted-foreground leading-relaxed max-h-24 overflow-y-auto pr-2 scrollbar-thin">
                   {recommendation.description}
-                </p>
+                </div>
               </div>
 
               <div>
                 <h3 className="font-semibold text-sm mb-2">Dosage</h3>
-                <p className="text-xs text-foreground bg-muted px-3 py-2 rounded-lg line-clamp-3">
+                <div className="text-xs text-foreground bg-muted px-3 py-2 rounded-lg max-h-20 overflow-y-auto scrollbar-thin">
                   {recommendation.dosage}
-                </p>
+                </div>
               </div>
 
               {recommendation.benefits.length > 0 && (
                 <div>
                   <h3 className="font-semibold text-sm mb-2">Key Benefits</h3>
-                  <ul className="space-y-1">
-                    {recommendation.benefits.slice(0, 3).map((benefit, idx) => (
+                  <ul className="space-y-1 max-h-32 overflow-y-auto pr-2 scrollbar-thin">
+                    {recommendation.benefits.map((benefit, idx) => (
                       <li key={idx} className="flex items-start gap-2">
                         <span className="text-secondary text-sm">•</span>
-                        <span className="text-xs text-muted-foreground line-clamp-2">{benefit}</span>
+                        <span className="text-xs text-muted-foreground">{benefit}</span>
                       </li>
                     ))}
                   </ul>
@@ -96,7 +96,7 @@ export const RecommendationResults = ({ recommendations, localStores, onNewSearc
                   <h3 className="font-semibold text-sm mb-2 text-amber-900 dark:text-amber-100">
                     Considerations
                   </h3>
-                  <ul className="space-y-1">
+                  <ul className="space-y-1 max-h-32 overflow-y-auto pr-2 scrollbar-thin">
                     {recommendation.considerations.map((consideration, idx) => (
                       <li key={idx} className="flex items-start gap-2">
                         <span className="text-amber-600 dark:text-amber-400 text-sm">•</span>
