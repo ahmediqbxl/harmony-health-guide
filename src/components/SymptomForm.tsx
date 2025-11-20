@@ -14,6 +14,7 @@ export interface SymptomData {
   symptoms: string;
   conditions: string;
   additionalInfo: string;
+  location?: string;
 }
 
 export const SymptomForm = ({ onSubmit, isLoading }: SymptomFormProps) => {
@@ -21,6 +22,7 @@ export const SymptomForm = ({ onSubmit, isLoading }: SymptomFormProps) => {
     symptoms: "",
     conditions: "",
     additionalInfo: "",
+    location: "",
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -71,6 +73,18 @@ export const SymptomForm = ({ onSubmit, isLoading }: SymptomFormProps) => {
               value={formData.additionalInfo}
               onChange={(e) => setFormData({ ...formData, additionalInfo: e.target.value })}
               rows={3}
+              className="resize-none"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="location">Your Location (Optional)</Label>
+            <Textarea
+              id="location"
+              placeholder="Enter your city or address to find local homeopathic stores"
+              value={formData.location}
+              onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+              rows={2}
               className="resize-none"
             />
           </div>

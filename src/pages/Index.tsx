@@ -4,38 +4,39 @@ import { RecommendationResults, type Recommendation } from "@/components/Recomme
 import { Sparkles, Heart, Leaf } from "lucide-react";
 import { toast } from "sonner";
 import heroImage from "@/assets/hero-homeopathy.jpg";
+import { supabase } from "@/integrations/supabase/client";
 
 const Index = () => {
-  const [recommendations, setRecommendations] = useState<Recommendation[] | null>(null);
+  const [recommendations, setRecommendations] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (data: SymptomData) => {
     setIsLoading(true);
-    
     try {
-      const response = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/recommend-medicine`,
+      const { data: functionData, error: functionError } = await supabase.functions.invoke(
+        'recommend-medicine',
         {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
-          },
-          body: JSON.stringify(data),
+          body: {
+            symptoms: data.symptoms,
+            existingConditions: data.conditions,
+            additionalInfo: data.additionalInfo,
+            location: data.location,
+            age: 'Not specified',
+            gender: 'Not specified'
+          }
         }
       );
 
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error || 'Failed to get recommendation');
+      if (functionError) {
+        console.error('Function error:', functionError);
+        toast.error("Failed to get recommendations. Please try again.");
+        return;
       }
 
-      const aiRecommendation = await response.json();
-      setRecommendations(aiRecommendation.recommendations);
-      toast.success(`${aiRecommendation.recommendations.length} AI recommendations ready!`);
+      setRecommendations(functionData);
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Failed to get recommendation. Please try again.");
-      console.error(error);
+      console.error('Error:', error);
+      toast.error("An unexpected error occurred. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -94,7 +95,11 @@ const Index = () => {
       {/* Main Content */}
       <section className="py-12 px-4">
         {recommendations ? (
-          <RecommendationResults recommendations={recommendations} onNewSearch={handleNewSearch} />
+          <RecommendationResults 
+            recommendations={recommendations.recommendations} 
+            localStores={recommendations.localStores}
+            onNewSearch={handleNewSearch} 
+          />
         ) : (
           <SymptomForm onSubmit={handleSubmit} isLoading={isLoading} />
         )}
