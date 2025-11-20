@@ -89,10 +89,10 @@ export const RecommendationResults = ({ recommendations, onNewSearch }: Recommen
                     Considerations
                   </h3>
                   <ul className="space-y-1">
-                    {recommendation.considerations.slice(0, 2).map((consideration, idx) => (
+                    {recommendation.considerations.map((consideration, idx) => (
                       <li key={idx} className="flex items-start gap-2">
                         <span className="text-amber-600 dark:text-amber-400 text-sm">•</span>
-                        <span className="text-amber-800 dark:text-amber-200 text-xs line-clamp-2">
+                        <span className="text-amber-800 dark:text-amber-200 text-xs">
                           {consideration}
                         </span>
                       </li>
