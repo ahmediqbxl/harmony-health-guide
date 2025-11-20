@@ -13,36 +13,28 @@ const Index = () => {
     setIsLoading(true);
     
     try {
-      // TODO: Replace with actual AI backend call
-      // Simulating API call for now
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-      
-      // Mock recommendation
-      const mockRecommendation: Recommendation = {
-        medicineName: "Arnica Montana 30C",
-        potency: "30C Potency",
-        dosage: "Take 3-5 pellets under the tongue, 3 times daily. Allow pellets to dissolve completely. Avoid eating or drinking 15 minutes before and after taking.",
-        description:
-          "Arnica Montana is a widely used homeopathic remedy derived from the Arnica flower, traditionally used for bruising, muscle soreness, and recovery from physical trauma. It's known for its anti-inflammatory properties in homeopathic practice.",
-        benefits: [
-          "May help reduce bruising and swelling",
-          "Traditionally used for muscle aches and soreness",
-          "Supports recovery from minor physical trauma",
-          "Natural approach to inflammation management",
-        ],
-        considerations: [
-          "Consult a healthcare provider if symptoms persist or worsen",
-          "Not a replacement for emergency medical care",
-          "Keep away from strong odors (coffee, mint, camphor) which may reduce effectiveness",
-          "Store in a cool, dry place away from direct sunlight",
-        ],
-        amazonUrl: "https://www.amazon.com/s?k=arnica+montana+30c+homeopathic",
-      };
-      
-      setRecommendation(mockRecommendation);
-      toast.success("Recommendation ready!");
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/recommend-medicine`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+          },
+          body: JSON.stringify(data),
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || 'Failed to get recommendation');
+      }
+
+      const aiRecommendation = await response.json();
+      setRecommendation(aiRecommendation);
+      toast.success("AI recommendation ready!");
     } catch (error) {
-      toast.error("Failed to get recommendation. Please try again.");
+      toast.error(error instanceof Error ? error.message : "Failed to get recommendation. Please try again.");
       console.error(error);
     } finally {
       setIsLoading(false);
