@@ -1,8 +1,10 @@
+import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ExternalLink, Package, Info, MapPin, Star, Clock, Phone } from "lucide-react";
+import { ExternalLink, Package, Info, MapPin, Star, Clock, Phone, ChevronDown } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 export interface Recommendation {
   medicineName: string;
@@ -32,6 +34,15 @@ interface RecommendationResultsProps {
 }
 
 export const RecommendationResults = ({ recommendations, localStores, onNewSearch }: RecommendationResultsProps) => {
+  const [openPotencyExplanations, setOpenPotencyExplanations] = useState<Record<number, boolean>>({});
+
+  const togglePotencyExplanation = (index: number) => {
+    setOpenPotencyExplanations(prev => ({
+      ...prev,
+      [index]: !prev[index]
+    }));
+  };
+
   return (
     <div className="w-full max-w-6xl mx-auto space-y-6 animate-in fade-in duration-700">
       <div className="flex items-center justify-between mb-4">
@@ -66,12 +77,25 @@ export const RecommendationResults = ({ recommendations, localStores, onNewSearc
                 </div>
               </CardHeader>
               <CardContent className="space-y-3 pt-4 flex-1 flex flex-col">
-                <div className="bg-accent/10 border border-accent/20 rounded-lg p-3">
-                  <h3 className="font-semibold text-sm mb-1 text-accent">Why This Potency?</h3>
-                  <p className="text-xs text-foreground leading-relaxed">
-                    {recommendation.potencyExplanation}
-                  </p>
-                </div>
+                <Collapsible
+                  open={openPotencyExplanations[index]}
+                  onOpenChange={() => togglePotencyExplanation(index)}
+                  className="bg-accent/10 border border-accent/20 rounded-lg"
+                >
+                  <CollapsibleTrigger className="w-full p-3 flex items-center justify-between hover:bg-accent/5 transition-colors">
+                    <h3 className="font-semibold text-sm text-accent">Why This Potency?</h3>
+                    <ChevronDown 
+                      className={`h-4 w-4 text-accent transition-transform duration-200 ${
+                        openPotencyExplanations[index] ? 'transform rotate-180' : ''
+                      }`}
+                    />
+                  </CollapsibleTrigger>
+                  <CollapsibleContent className="px-3 pb-3">
+                    <p className="text-xs text-foreground leading-relaxed">
+                      {recommendation.potencyExplanation}
+                    </p>
+                  </CollapsibleContent>
+                </Collapsible>
 
                 <div>
                   <h3 className="font-semibold text-sm mb-2 flex items-center gap-2">
