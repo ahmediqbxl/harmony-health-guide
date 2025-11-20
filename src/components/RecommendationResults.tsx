@@ -2,7 +2,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { ExternalLink, Package, Info, MapPin, Star, Clock } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 
 export interface Recommendation {
   medicineName: string;
@@ -39,7 +39,7 @@ export const RecommendationResults = ({ recommendations, localStores, onNewSearc
         </Button>
       </div>
 
-      <ScrollArea className="w-full">
+      <ScrollArea className="w-full whitespace-nowrap">
         <div className="flex gap-6 pb-4">
           {recommendations.map((recommendation, index) => (
             <Card key={index} className="shadow-medium border-primary/20 flex flex-col min-w-[350px] max-w-[350px]">
@@ -124,6 +124,7 @@ export const RecommendationResults = ({ recommendations, localStores, onNewSearc
             </Card>
           ))}
         </div>
+        <ScrollBar orientation="horizontal" />
       </ScrollArea>
 
       {localStores && localStores.length > 0 && (
