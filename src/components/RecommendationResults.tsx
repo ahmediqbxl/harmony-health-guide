@@ -57,7 +57,7 @@ export const RecommendationResults = ({ recommendations, localStores, onNewSearc
       <ScrollArea className="w-full">
         <div className="flex gap-6 pb-4 items-stretch">
           {recommendations.map((recommendation, index) => (
-            <Card key={index} className="shadow-medium border-primary/20 flex flex-col w-[350px] h-[950px]">
+            <Card key={index} className="shadow-medium border-primary/20 flex flex-col w-[350px]">
               <CardHeader className="bg-gradient-hero shrink-0">
                 <div className="space-y-2">
                   <div className="flex items-start justify-between gap-2">
@@ -104,21 +104,21 @@ export const RecommendationResults = ({ recommendations, localStores, onNewSearc
                     <Info className="h-4 w-4 text-primary" />
                     About This Remedy
                   </h3>
-                  <div className="text-sm text-muted-foreground leading-relaxed h-[100px] overflow-y-auto pr-2 scrollbar-thin">
+                  <div className="text-sm text-muted-foreground leading-relaxed max-h-[100px] overflow-y-auto pr-2 scrollbar-thin">
                     {recommendation.description}
                   </div>
                 </div>
 
                 <div className="shrink-0">
                   <h3 className="font-semibold text-sm mb-2">Dosage</h3>
-                  <div className="text-xs text-foreground bg-muted px-3 py-2 rounded-lg h-[60px] overflow-y-auto scrollbar-thin">
+                  <div className="text-xs text-foreground bg-muted px-3 py-2 rounded-lg max-h-[60px] overflow-y-auto scrollbar-thin">
                     {recommendation.dosage}
                   </div>
                 </div>
 
                 <div className="shrink-0">
                   <h3 className="font-semibold text-sm mb-2">Key Benefits</h3>
-                  <ul className="space-y-1 h-[100px] overflow-y-auto pr-2 scrollbar-thin">
+                  <ul className="space-y-1 max-h-[100px] overflow-y-auto pr-2 scrollbar-thin">
                     {recommendation.benefits.map((benefit, idx) => (
                       <li key={idx} className="flex items-start gap-2">
                         <span className="text-secondary text-sm">•</span>
@@ -132,7 +132,7 @@ export const RecommendationResults = ({ recommendations, localStores, onNewSearc
                   <h3 className="font-semibold text-sm mb-2 text-amber-900 dark:text-amber-100">
                     Considerations
                   </h3>
-                  <ul className="space-y-1 h-[100px] overflow-y-auto pr-2 scrollbar-thin">
+                  <ul className="space-y-1 max-h-[100px] overflow-y-auto pr-2 scrollbar-thin">
                     {recommendation.considerations.map((consideration, idx) => (
                       <li key={idx} className="flex items-start gap-2">
                         <span className="text-amber-600 dark:text-amber-400 text-sm">•</span>
