@@ -9,6 +9,7 @@ import { Loader2 } from "lucide-react";
 interface SymptomFormProps {
   onSubmit: (data: SymptomData) => Promise<void>;
   isLoading: boolean;
+  initialData?: SymptomData;
 }
 
 export interface SymptomData {
@@ -19,8 +20,8 @@ export interface SymptomData {
   location?: string;
 }
 
-export const SymptomForm = ({ onSubmit, isLoading }: SymptomFormProps) => {
-  const [formData, setFormData] = useState<SymptomData>({
+export const SymptomForm = ({ onSubmit, isLoading, initialData }: SymptomFormProps) => {
+  const [formData, setFormData] = useState<SymptomData>(initialData || {
     symptoms: "",
     severity: "moderate",
     conditions: "",

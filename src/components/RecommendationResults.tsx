@@ -31,9 +31,10 @@ interface RecommendationResultsProps {
   recommendations: Recommendation[];
   localStores?: LocalStore[];
   onNewSearch: () => void;
+  onEditSearch: () => void;
 }
 
-export const RecommendationResults = ({ recommendations, localStores, onNewSearch }: RecommendationResultsProps) => {
+export const RecommendationResults = ({ recommendations, localStores, onNewSearch, onEditSearch }: RecommendationResultsProps) => {
   const [openPotencyExplanations, setOpenPotencyExplanations] = useState<Record<number, boolean>>({});
 
   const togglePotencyExplanation = (index: number) => {
@@ -49,9 +50,14 @@ export const RecommendationResults = ({ recommendations, localStores, onNewSearc
         <h2 className="text-2xl font-bold text-foreground">
           {recommendations.length} Recommended Options
         </h2>
-        <Button variant="outline" onClick={onNewSearch}>
-          New Search
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={onEditSearch}>
+            Edit Search
+          </Button>
+          <Button variant="outline" onClick={onNewSearch}>
+            New Search
+          </Button>
+        </div>
       </div>
 
       <ScrollArea className="w-full">
