@@ -19,9 +19,10 @@ serve(async (req) => {
       throw new Error('LOVABLE_API_KEY not configured');
     }
 
-    const systemPrompt = `You are an expert homeopathic consultant with deep knowledge of homeopathic remedies, materia medica, and constitutional prescribing. Your role is to analyze patient symptoms and recommend the most appropriate homeopathic medicine.
+    const systemPrompt = `You are an expert homeopathic consultant with deep knowledge of homeopathic remedies, materia medica, and constitutional prescribing. Your role is to analyze patient symptoms and recommend multiple appropriate homeopathic medicines.
 
 Important guidelines:
+- Provide 3-5 different homeopathic remedy options
 - Consider the totality of symptoms, not just isolated complaints
 - Match symptom patterns to remedy pictures
 - Consider constitutional factors (age, gender, temperament)
@@ -29,8 +30,9 @@ Important guidelines:
 - Provide appropriate potencies (typically 6C, 30C, or 200C)
 - Include clear dosage instructions
 - Emphasize safety and when to seek professional care
+- Order recommendations by best match to symptoms
 
-Always structure recommendations with:
+Always structure each recommendation with:
 - Remedy name (Latin name + common name if applicable)
 - Potency recommendation
 - Detailed dosage instructions
@@ -38,7 +40,7 @@ Always structure recommendations with:
 - Expected benefits
 - Important considerations and safety notes`;
 
-    const userPrompt = `Please analyze these symptoms and recommend the most appropriate homeopathic medicine:
+    const userPrompt = `Please analyze these symptoms and recommend 3-5 appropriate homeopathic medicines:
 
 Symptoms: ${symptoms}
 ${existingConditions ? `Existing conditions: ${existingConditions}` : ''}
@@ -46,7 +48,7 @@ ${additionalInfo ? `Additional information: ${additionalInfo}` : ''}
 Age: ${age}
 Gender: ${gender}
 
-Provide a comprehensive homeopathic medicine recommendation.`;
+Provide 3-5 homeopathic medicine recommendations, ordered by best match.`;
 
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
@@ -64,45 +66,58 @@ Provide a comprehensive homeopathic medicine recommendation.`;
           {
             type: 'function',
             function: {
-              name: 'recommend_homeopathic_medicine',
-              description: 'Recommend a homeopathic medicine based on symptom analysis',
+              name: 'recommend_homeopathic_medicines',
+              description: 'Recommend multiple homeopathic medicines based on symptom analysis',
               parameters: {
                 type: 'object',
                 properties: {
-                  medicineName: {
-                    type: 'string',
-                    description: 'The full name of the recommended homeopathic medicine (Latin name + potency)'
-                  },
-                  potency: {
-                    type: 'string',
-                    description: 'The recommended potency (e.g., 6C, 30C, 200C)'
-                  },
-                  dosage: {
-                    type: 'string',
-                    description: 'Detailed dosage instructions including frequency and duration'
-                  },
-                  description: {
-                    type: 'string',
-                    description: 'Comprehensive description of the remedy and why it matches the symptoms'
-                  },
-                  benefits: {
+                  recommendations: {
                     type: 'array',
-                    items: { type: 'string' },
-                    description: 'List of expected benefits (4-6 items)'
-                  },
-                  considerations: {
-                    type: 'array',
-                    items: { type: 'string' },
-                    description: 'Important safety considerations and guidance (4-6 items)'
+                    description: 'List of 3-5 homeopathic medicine recommendations, ordered by best match',
+                    items: {
+                      type: 'object',
+                      properties: {
+                        medicineName: {
+                          type: 'string',
+                          description: 'The full name of the recommended homeopathic medicine (Latin name + potency)'
+                        },
+                        potency: {
+                          type: 'string',
+                          description: 'The recommended potency (e.g., 6C, 30C, 200C)'
+                        },
+                        dosage: {
+                          type: 'string',
+                          description: 'Detailed dosage instructions including frequency and duration'
+                        },
+                        description: {
+                          type: 'string',
+                          description: 'Comprehensive description of the remedy and why it matches the symptoms'
+                        },
+                        benefits: {
+                          type: 'array',
+                          items: { type: 'string' },
+                          description: 'List of expected benefits (3-5 items)'
+                        },
+                        considerations: {
+                          type: 'array',
+                          items: { type: 'string' },
+                          description: 'Important safety considerations and guidance (3-5 items)'
+                        }
+                      },
+                      required: ['medicineName', 'potency', 'dosage', 'description', 'benefits', 'considerations'],
+                      additionalProperties: false
+                    },
+                    minItems: 3,
+                    maxItems: 5
                   }
                 },
-                required: ['medicineName', 'potency', 'dosage', 'description', 'benefits', 'considerations'],
+                required: ['recommendations'],
                 additionalProperties: false
               }
             }
           }
         ],
-        tool_choice: { type: 'function', function: { name: 'recommend_homeopathic_medicine' } }
+        tool_choice: { type: 'function', function: { name: 'recommend_homeopathic_medicines' } }
       }),
     });
 
@@ -131,21 +146,24 @@ Provide a comprehensive homeopathic medicine recommendation.`;
     console.log('AI response:', JSON.stringify(data, null, 2));
 
     const toolCall = data.choices?.[0]?.message?.tool_calls?.[0];
-    if (!toolCall || toolCall.function.name !== 'recommend_homeopathic_medicine') {
+    if (!toolCall || toolCall.function.name !== 'recommend_homeopathic_medicines') {
       throw new Error('Invalid AI response format');
     }
 
-    const recommendation = JSON.parse(toolCall.function.arguments);
+    const result = JSON.parse(toolCall.function.arguments);
     
-    // Generate Amazon search URL for the medicine
-    const searchQuery = encodeURIComponent(recommendation.medicineName.replace(/\s+/g, '+'));
-    const amazonUrl = `https://www.amazon.com/s?k=${searchQuery}+homeopathic`;
+    // Generate Amazon search URLs for each medicine
+    const recommendationsWithUrls = result.recommendations.map((rec: any) => {
+      const searchQuery = encodeURIComponent(rec.medicineName.replace(/\s+/g, '+'));
+      const amazonUrl = `https://www.amazon.com/s?k=${searchQuery}+homeopathic`;
+      return {
+        ...rec,
+        amazonUrl
+      };
+    });
 
     return new Response(
-      JSON.stringify({
-        ...recommendation,
-        amazonUrl
-      }),
+      JSON.stringify({ recommendations: recommendationsWithUrls }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
 
