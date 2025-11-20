@@ -57,7 +57,7 @@ export const RecommendationResults = ({ recommendations, localStores, onNewSearc
       <ScrollArea className="w-full">
         <div className="flex gap-6 pb-4 items-stretch">
           {recommendations.map((recommendation, index) => (
-            <Card key={index} className="shadow-medium border-primary/20 flex flex-col w-[350px] h-[800px]">
+            <Card key={index} className="shadow-medium border-primary/20 flex flex-col w-[350px] h-[950px]">
               <CardHeader className="bg-gradient-hero shrink-0">
                 <div className="space-y-2">
                   <div className="flex items-start justify-between gap-2">
