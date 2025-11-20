@@ -61,13 +61,13 @@ export const RecommendationResults = ({ recommendations, localStores, onNewSearc
                   )}
                 </div>
               </CardHeader>
-              <CardContent className="space-y-4 pt-4 flex-1 flex flex-col">
+              <CardContent className="space-y-3 pt-4 flex-1 flex flex-col">
                 <div className="flex-1">
                   <h3 className="font-semibold text-sm mb-2 flex items-center gap-2">
                     <Info className="h-4 w-4 text-primary" />
                     About This Remedy
                   </h3>
-                  <div className="text-sm text-muted-foreground leading-relaxed max-h-24 overflow-y-auto pr-2 scrollbar-thin">
+                  <div className="text-sm text-muted-foreground leading-relaxed max-h-40 overflow-y-auto pr-2 scrollbar-thin">
                     {recommendation.description}
                   </div>
                 </div>
