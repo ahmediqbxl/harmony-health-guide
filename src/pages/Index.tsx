@@ -98,6 +98,7 @@ const Index = () => {
           <RecommendationResults 
             recommendations={recommendations.recommendations} 
             localStores={recommendations.localStores}
+            userLocation={recommendations.userLocation}
             onNewSearch={handleNewSearch} 
           />
         ) : (

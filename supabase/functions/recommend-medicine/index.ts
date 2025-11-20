@@ -166,6 +166,8 @@ Provide 3-5 homeopathic medicine recommendations, ordered by best match.`;
     
     // Search for local stores if location is provided
     let localStores = [];
+    let userLat: number | null = null;
+    let userLng: number | null = null;
     console.log('Location provided:', location);
     
     if (location && location.trim()) {
@@ -178,9 +180,6 @@ Provide 3-5 homeopathic medicine recommendations, ordered by best match.`;
           const geocodeUrl = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(location)}&key=${GOOGLE_PLACES_API_KEY}`;
           const geocodeResponse = await fetch(geocodeUrl);
           const geocodeData = await geocodeResponse.json();
-          
-          let userLat: number | null = null;
-          let userLng: number | null = null;
           
           if (geocodeData.status === 'OK' && geocodeData.results?.length > 0) {
             userLat = geocodeData.results[0].geometry.location.lat;
@@ -223,7 +222,11 @@ Provide 3-5 homeopathic medicine recommendations, ordered by best match.`;
                     rating: place.rating,
                     openNow: place.opening_hours?.open_now,
                     phoneNumber: detailsData.result?.formatted_phone_number,
-                    distanceKm: distance ? parseFloat(distance.toFixed(1)) : undefined
+                    distanceKm: distance ? parseFloat(distance.toFixed(1)) : undefined,
+                    coordinates: place.geometry?.location ? {
+                      lat: place.geometry.location.lat,
+                      lng: place.geometry.location.lng
+                    } : undefined
                   };
                 } catch (error) {
                   console.error('Error fetching place details:', error);
@@ -231,7 +234,11 @@ Provide 3-5 homeopathic medicine recommendations, ordered by best match.`;
                     name: place.name,
                     address: place.formatted_address,
                     rating: place.rating,
-                    openNow: place.opening_hours?.open_now
+                    openNow: place.opening_hours?.open_now,
+                    coordinates: place.geometry?.location ? {
+                      lat: place.geometry.location.lat,
+                      lng: place.geometry.location.lng
+                    } : undefined
                   };
                 }
               })
@@ -277,7 +284,8 @@ Provide 3-5 homeopathic medicine recommendations, ordered by best match.`;
     return new Response(
       JSON.stringify({ 
         recommendations: recommendationsWithUrls,
-        localStores: localStores.length > 0 ? localStores : undefined
+        localStores: localStores.length > 0 ? localStores : undefined,
+        userLocation: userLat && userLng ? { lat: userLat, lng: userLng } : undefined
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
