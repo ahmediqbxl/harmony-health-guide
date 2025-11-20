@@ -1,6 +1,6 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ExternalLink, Package, Info, MapPin, Star, Clock } from "lucide-react";
+import { ExternalLink, Package, Info, MapPin, Star, Clock, Phone } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 
@@ -19,6 +19,7 @@ interface LocalStore {
   address: string;
   rating?: number;
   openNow?: boolean;
+  phoneNumber?: string;
 }
 
 interface RecommendationResultsProps {
@@ -147,7 +148,7 @@ export const RecommendationResults = ({ recommendations, localStores, onNewSearc
                       <div className="flex-1">
                         <h4 className="font-semibold text-foreground">{store.name}</h4>
                         <p className="text-sm text-muted-foreground mt-1">{store.address}</p>
-                        <div className="flex items-center gap-3 mt-2">
+                        <div className="flex items-center gap-3 mt-2 flex-wrap">
                           {store.rating && (
                             <div className="flex items-center gap-1 text-sm">
                               <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
@@ -160,6 +161,14 @@ export const RecommendationResults = ({ recommendations, localStores, onNewSearc
                               <span className={store.openNow ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"}>
                                 {store.openNow ? "Open now" : "Closed"}
                               </span>
+                            </div>
+                          )}
+                          {store.phoneNumber && (
+                            <div className="flex items-center gap-1 text-sm">
+                              <Phone className="w-4 h-4 text-primary" />
+                              <a href={`tel:${store.phoneNumber}`} className="text-primary hover:underline">
+                                {store.phoneNumber}
+                              </a>
                             </div>
                           )}
                         </div>
