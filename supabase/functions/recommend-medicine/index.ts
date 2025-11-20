@@ -152,6 +152,18 @@ Provide 3-5 homeopathic medicine recommendations, ordered by best match.`;
 
     const result = JSON.parse(toolCall.function.arguments);
     
+    // Helper function to calculate distance using Haversine formula
+    const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number): number => {
+      const R = 6371; // Radius of Earth in kilometers
+      const dLat = (lat2 - lat1) * Math.PI / 180;
+      const dLon = (lon2 - lon1) * Math.PI / 180;
+      const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                Math.sin(dLon / 2) * Math.sin(dLon / 2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      return R * c; // Distance in kilometers
+    };
+    
     // Search for local stores if location is provided
     let localStores = [];
     console.log('Location provided:', location);
@@ -162,6 +174,20 @@ Provide 3-5 homeopathic medicine recommendations, ordered by best match.`;
       
       if (GOOGLE_PLACES_API_KEY) {
         try {
+          // First geocode the user's location
+          const geocodeUrl = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(location)}&key=${GOOGLE_PLACES_API_KEY}`;
+          const geocodeResponse = await fetch(geocodeUrl);
+          const geocodeData = await geocodeResponse.json();
+          
+          let userLat: number | null = null;
+          let userLng: number | null = null;
+          
+          if (geocodeData.status === 'OK' && geocodeData.results?.length > 0) {
+            userLat = geocodeData.results[0].geometry.location.lat;
+            userLng = geocodeData.results[0].geometry.location.lng;
+            console.log('User location coordinates:', userLat, userLng);
+          }
+          
           const placesUrl = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=homeopathic+medicine+store+${encodeURIComponent(location)}&key=${GOOGLE_PLACES_API_KEY}`;
           console.log('Calling Google Places API for location:', location);
           
@@ -172,7 +198,7 @@ Provide 3-5 homeopathic medicine recommendations, ordered by best match.`;
             console.log('Places API response status:', placesData.status);
             console.log('Number of results:', placesData.results?.length || 0);
             
-            // Fetch detailed information for each place to get phone numbers
+            // Fetch detailed information for each place to get phone numbers and calculate distance
             const storesWithDetails = await Promise.all(
               (placesData.results || []).slice(0, 5).map(async (place: any) => {
                 try {
@@ -180,12 +206,24 @@ Provide 3-5 homeopathic medicine recommendations, ordered by best match.`;
                   const detailsResponse = await fetch(detailsUrl);
                   const detailsData = await detailsResponse.json();
                   
+                  // Calculate distance if user location is available
+                  let distance: number | undefined = undefined;
+                  if (userLat !== null && userLng !== null && place.geometry?.location) {
+                    distance = calculateDistance(
+                      userLat,
+                      userLng,
+                      place.geometry.location.lat,
+                      place.geometry.location.lng
+                    );
+                  }
+                  
                   return {
                     name: place.name,
                     address: place.formatted_address,
                     rating: place.rating,
                     openNow: place.opening_hours?.open_now,
-                    phoneNumber: detailsData.result?.formatted_phone_number
+                    phoneNumber: detailsData.result?.formatted_phone_number,
+                    distanceKm: distance ? parseFloat(distance.toFixed(1)) : undefined
                   };
                 } catch (error) {
                   console.error('Error fetching place details:', error);
@@ -198,6 +236,15 @@ Provide 3-5 homeopathic medicine recommendations, ordered by best match.`;
                 }
               })
             );
+            
+            // Sort stores by distance if available
+            if (storesWithDetails.some(store => store.distanceKm !== undefined)) {
+              storesWithDetails.sort((a, b) => {
+                if (a.distanceKm === undefined) return 1;
+                if (b.distanceKm === undefined) return -1;
+                return a.distanceKm - b.distanceKm;
+              });
+            }
             
             localStores = storesWithDetails;
             
