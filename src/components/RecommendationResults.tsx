@@ -7,6 +7,7 @@ import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 export interface Recommendation {
   medicineName: string;
   potency: string;
+  potencyExplanation: string;
   dosage: string;
   description: string;
   benefits: string[];
@@ -65,6 +66,13 @@ export const RecommendationResults = ({ recommendations, localStores, onNewSearc
                 </div>
               </CardHeader>
               <CardContent className="space-y-3 pt-4 flex-1 flex flex-col">
+                <div className="bg-accent/10 border border-accent/20 rounded-lg p-3">
+                  <h3 className="font-semibold text-sm mb-1 text-accent">Why This Potency?</h3>
+                  <p className="text-xs text-foreground leading-relaxed">
+                    {recommendation.potencyExplanation}
+                  </p>
+                </div>
+
                 <div>
                   <h3 className="font-semibold text-sm mb-2 flex items-center gap-2">
                     <Info className="h-4 w-4 text-primary" />
