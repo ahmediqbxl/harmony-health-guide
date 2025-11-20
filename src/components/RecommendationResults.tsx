@@ -39,7 +39,7 @@ export const RecommendationResults = ({ recommendations, localStores, onNewSearc
         </Button>
       </div>
 
-      <ScrollArea className="w-full whitespace-nowrap">
+      <ScrollArea className="w-full">
         <div className="flex gap-6 pb-4">
           {recommendations.map((recommendation, index) => (
             <Card key={index} className="shadow-medium border-primary/20 flex flex-col min-w-[350px] max-w-[350px]">
