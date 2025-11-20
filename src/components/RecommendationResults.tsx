@@ -20,6 +20,7 @@ interface LocalStore {
   rating?: number;
   openNow?: boolean;
   phoneNumber?: string;
+  distanceKm?: number;
 }
 
 interface RecommendationResultsProps {
@@ -149,6 +150,12 @@ export const RecommendationResults = ({ recommendations, localStores, onNewSearc
                         <h4 className="font-semibold text-foreground">{store.name}</h4>
                         <p className="text-sm text-muted-foreground mt-1">{store.address}</p>
                         <div className="flex items-center gap-3 mt-2 flex-wrap">
+                          {store.distanceKm !== undefined && (
+                            <div className="flex items-center gap-1 text-sm font-medium text-primary">
+                              <MapPin className="w-4 h-4" />
+                              <span>{store.distanceKm} km ({(store.distanceKm * 0.621371).toFixed(1)} mi)</span>
+                            </div>
+                          )}
                           {store.rating && (
                             <div className="flex items-center gap-1 text-sm">
                               <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
