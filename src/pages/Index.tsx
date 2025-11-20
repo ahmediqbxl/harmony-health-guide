@@ -9,9 +9,11 @@ import { supabase } from "@/integrations/supabase/client";
 const Index = () => {
   const [recommendations, setRecommendations] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [lastSearchData, setLastSearchData] = useState<SymptomData | null>(null);
 
   const handleSubmit = async (data: SymptomData) => {
     setIsLoading(true);
+    setLastSearchData(data);
     try {
       const { data: functionData, error: functionError } = await supabase.functions.invoke(
         'recommend-medicine',
@@ -44,6 +46,11 @@ const Index = () => {
   };
 
   const handleNewSearch = () => {
+    setRecommendations(null);
+    setLastSearchData(null);
+  };
+
+  const handleEditSearch = () => {
     setRecommendations(null);
   };
 
@@ -99,10 +106,15 @@ const Index = () => {
           <RecommendationResults 
             recommendations={recommendations.recommendations} 
             localStores={recommendations.localStores}
-            onNewSearch={handleNewSearch} 
+            onNewSearch={handleNewSearch}
+            onEditSearch={handleEditSearch}
           />
         ) : (
-          <SymptomForm onSubmit={handleSubmit} isLoading={isLoading} />
+          <SymptomForm 
+            onSubmit={handleSubmit} 
+            isLoading={isLoading}
+            initialData={lastSearchData || undefined}
+          />
         )}
       </section>
 
