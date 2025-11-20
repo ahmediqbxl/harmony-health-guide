@@ -1,12 +1,8 @@
-import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ExternalLink, Package, Info, MapPin, Star, Clock, Phone } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { StoresMap } from "./StoresMap";
 
 export interface Recommendation {
   medicineName: string;
@@ -25,21 +21,15 @@ interface LocalStore {
   openNow?: boolean;
   phoneNumber?: string;
   distanceKm?: number;
-  coordinates?: {
-    lat: number;
-    lng: number;
-  };
 }
 
 interface RecommendationResultsProps {
   recommendations: Recommendation[];
   localStores?: LocalStore[];
-  userLocation?: { lat: number; lng: number };
   onNewSearch: () => void;
 }
 
-export const RecommendationResults = ({ recommendations, localStores, userLocation, onNewSearch }: RecommendationResultsProps) => {
-  const [mapboxToken, setMapboxToken] = useState("");
+export const RecommendationResults = ({ recommendations, localStores, onNewSearch }: RecommendationResultsProps) => {
   return (
     <div className="w-full max-w-6xl mx-auto space-y-6 animate-in fade-in duration-700">
       <div className="flex items-center justify-between mb-4">
@@ -140,50 +130,7 @@ export const RecommendationResults = ({ recommendations, localStores, userLocati
       </ScrollArea>
 
       {localStores && localStores.length > 0 && (
-        <>
-          <Card className="mt-8 shadow-medium">
-            <CardHeader>
-              <div className="flex items-center gap-2">
-                <MapPin className="w-5 h-5 text-primary" />
-                <CardTitle>Store Map</CardTitle>
-              </div>
-              <CardDescription>
-                Visual map showing store locations relative to your location
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="mapbox-token">Mapbox Public Token</Label>
-                <Input
-                  id="mapbox-token"
-                  type="text"
-                  placeholder="pk.eyJ1Ijo..."
-                  value={mapboxToken}
-                  onChange={(e) => setMapboxToken(e.target.value)}
-                  className="font-mono text-sm"
-                />
-                <p className="text-xs text-muted-foreground">
-                  Get your free public token at{" "}
-                  <a
-                    href="https://account.mapbox.com/access-tokens/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-primary hover:underline"
-                  >
-                    mapbox.com
-                  </a>
-                </p>
-              </div>
-              
-              <StoresMap
-                stores={localStores}
-                userLocation={userLocation}
-                mapboxToken={mapboxToken}
-              />
-            </CardContent>
-          </Card>
-
-          <Card className="mt-8 shadow-medium">
+        <Card className="mt-8 shadow-medium">
             <CardHeader>
               <div className="flex items-center gap-2">
                 <MapPin className="w-5 h-5 text-primary" />
@@ -240,7 +187,6 @@ export const RecommendationResults = ({ recommendations, localStores, userLocati
               </ScrollArea>
             </CardContent>
           </Card>
-        </>
       )}
 
       <div className="text-center text-sm text-muted-foreground bg-card p-4 rounded-lg border">
