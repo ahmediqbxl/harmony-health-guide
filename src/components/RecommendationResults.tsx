@@ -2,6 +2,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { ExternalLink, Package, Info, MapPin, Star, Clock } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 export interface Recommendation {
   medicineName: string;
@@ -135,34 +136,36 @@ export const RecommendationResults = ({ recommendations, localStores, onNewSearc
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              {localStores.map((store, index) => (
-                <div key={index} className="border-b last:border-0 pb-4 last:pb-0">
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex-1">
-                      <h4 className="font-semibold text-foreground">{store.name}</h4>
-                      <p className="text-sm text-muted-foreground mt-1">{store.address}</p>
-                      <div className="flex items-center gap-3 mt-2">
-                        {store.rating && (
-                          <div className="flex items-center gap-1 text-sm">
-                            <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
-                            <span className="text-foreground">{store.rating}</span>
-                          </div>
-                        )}
-                        {store.openNow !== undefined && (
-                          <div className="flex items-center gap-1 text-sm">
-                            <Clock className="w-4 h-4" />
-                            <span className={store.openNow ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"}>
-                              {store.openNow ? "Open now" : "Closed"}
-                            </span>
-                          </div>
-                        )}
+            <ScrollArea className="h-96">
+              <div className="space-y-4 pr-4">
+                {localStores.map((store, index) => (
+                  <div key={index} className="border-b last:border-0 pb-4 last:pb-0">
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex-1">
+                        <h4 className="font-semibold text-foreground">{store.name}</h4>
+                        <p className="text-sm text-muted-foreground mt-1">{store.address}</p>
+                        <div className="flex items-center gap-3 mt-2">
+                          {store.rating && (
+                            <div className="flex items-center gap-1 text-sm">
+                              <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
+                              <span className="text-foreground">{store.rating}</span>
+                            </div>
+                          )}
+                          {store.openNow !== undefined && (
+                            <div className="flex items-center gap-1 text-sm">
+                              <Clock className="w-4 h-4" />
+                              <span className={store.openNow ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"}>
+                                {store.openNow ? "Open now" : "Closed"}
+                              </span>
+                            </div>
+                          )}
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            </ScrollArea>
           </CardContent>
         </Card>
       )}
