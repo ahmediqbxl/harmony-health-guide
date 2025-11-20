@@ -20,6 +20,7 @@ interface LocalStore {
   rating?: number;
   openNow?: boolean;
   phoneNumber?: string;
+  website?: string;
   distanceKm?: number;
 }
 
@@ -175,6 +176,19 @@ export const RecommendationResults = ({ recommendations, localStores, onNewSearc
                                 <Phone className="w-4 h-4 text-primary" />
                                 <a href={`tel:${store.phoneNumber}`} className="text-primary hover:underline">
                                   {store.phoneNumber}
+                                </a>
+                              </div>
+                            )}
+                            {store.website && (
+                              <div className="flex items-center gap-1 text-sm">
+                                <ExternalLink className="w-4 h-4 text-primary" />
+                                <a 
+                                  href={store.website} 
+                                  target="_blank" 
+                                  rel="noopener noreferrer" 
+                                  className="text-primary hover:underline"
+                                >
+                                  Visit Website
                                 </a>
                               </div>
                             )}

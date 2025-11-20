@@ -201,7 +201,7 @@ Provide 3-5 homeopathic medicine recommendations, ordered by best match.`;
             const storesWithDetails = await Promise.all(
               (placesData.results || []).slice(0, 5).map(async (place: any) => {
                 try {
-                  const detailsUrl = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${place.place_id}&fields=formatted_phone_number&key=${GOOGLE_PLACES_API_KEY}`;
+                  const detailsUrl = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${place.place_id}&fields=formatted_phone_number,website&key=${GOOGLE_PLACES_API_KEY}`;
                   const detailsResponse = await fetch(detailsUrl);
                   const detailsData = await detailsResponse.json();
                   
@@ -222,6 +222,7 @@ Provide 3-5 homeopathic medicine recommendations, ordered by best match.`;
                     rating: place.rating,
                     openNow: place.opening_hours?.open_now,
                     phoneNumber: detailsData.result?.formatted_phone_number,
+                    website: detailsData.result?.website,
                     distanceKm: distance ? parseFloat(distance.toFixed(1)) : undefined
                   };
                 } catch (error) {
@@ -230,7 +231,8 @@ Provide 3-5 homeopathic medicine recommendations, ordered by best match.`;
                     name: place.name,
                     address: place.formatted_address,
                     rating: place.rating,
-                    openNow: place.opening_hours?.open_now
+                    openNow: place.opening_hours?.open_now,
+                    website: undefined
                   };
                 }
               })
