@@ -12,7 +12,7 @@ serve(async (req) => {
   }
 
   try {
-    const { symptoms, existingConditions, additionalInfo, age, gender } = await req.json();
+    const { symptoms, existingConditions, additionalInfo, age, gender, location } = await req.json();
     
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
     if (!LOVABLE_API_KEY) {
@@ -152,6 +152,31 @@ Provide 3-5 homeopathic medicine recommendations, ordered by best match.`;
 
     const result = JSON.parse(toolCall.function.arguments);
     
+    // Search for local stores if location is provided
+    let localStores = [];
+    if (location && location.trim()) {
+      const GOOGLE_PLACES_API_KEY = Deno.env.get('GOOGLE_PLACES_API_KEY');
+      if (GOOGLE_PLACES_API_KEY) {
+        try {
+          const placesResponse = await fetch(
+            `https://maps.googleapis.com/maps/api/place/textsearch/json?query=homeopathic+medicine+store+${encodeURIComponent(location)}&key=${GOOGLE_PLACES_API_KEY}`
+          );
+          
+          if (placesResponse.ok) {
+            const placesData = await placesResponse.json();
+            localStores = (placesData.results || []).slice(0, 5).map((place: any) => ({
+              name: place.name,
+              address: place.formatted_address,
+              rating: place.rating,
+              openNow: place.opening_hours?.open_now
+            }));
+          }
+        } catch (error) {
+          console.error('Error fetching local stores:', error);
+        }
+      }
+    }
+    
     // Generate Amazon search URLs for each medicine
     const recommendationsWithUrls = result.recommendations.map((rec: any) => {
       const searchQuery = encodeURIComponent(rec.medicineName.replace(/\s+/g, '+'));
@@ -163,7 +188,10 @@ Provide 3-5 homeopathic medicine recommendations, ordered by best match.`;
     });
 
     return new Response(
-      JSON.stringify({ recommendations: recommendationsWithUrls }),
+      JSON.stringify({ 
+        recommendations: recommendationsWithUrls,
+        localStores: localStores.length > 0 ? localStores : undefined
+      }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
 
