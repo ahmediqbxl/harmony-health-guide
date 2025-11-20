@@ -222,11 +222,7 @@ Provide 3-5 homeopathic medicine recommendations, ordered by best match.`;
                     rating: place.rating,
                     openNow: place.opening_hours?.open_now,
                     phoneNumber: detailsData.result?.formatted_phone_number,
-                    distanceKm: distance ? parseFloat(distance.toFixed(1)) : undefined,
-                    coordinates: place.geometry?.location ? {
-                      lat: place.geometry.location.lat,
-                      lng: place.geometry.location.lng
-                    } : undefined
+                    distanceKm: distance ? parseFloat(distance.toFixed(1)) : undefined
                   };
                 } catch (error) {
                   console.error('Error fetching place details:', error);
@@ -234,11 +230,7 @@ Provide 3-5 homeopathic medicine recommendations, ordered by best match.`;
                     name: place.name,
                     address: place.formatted_address,
                     rating: place.rating,
-                    openNow: place.opening_hours?.open_now,
-                    coordinates: place.geometry?.location ? {
-                      lat: place.geometry.location.lat,
-                      lng: place.geometry.location.lng
-                    } : undefined
+                    openNow: place.opening_hours?.open_now
                   };
                 }
               })
@@ -284,8 +276,7 @@ Provide 3-5 homeopathic medicine recommendations, ordered by best match.`;
     return new Response(
       JSON.stringify({ 
         recommendations: recommendationsWithUrls,
-        localStores: localStores.length > 0 ? localStores : undefined,
-        userLocation: userLat && userLng ? { lat: userLat, lng: userLng } : undefined
+        localStores: localStores.length > 0 ? localStores : undefined
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
