@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -28,6 +28,13 @@ export const SymptomForm = ({ onSubmit, isLoading, initialData }: SymptomFormPro
     additionalInfo: "",
     location: "",
   });
+
+  // Update form data when initialData changes (e.g., when profile loads)
+  useEffect(() => {
+    if (initialData) {
+      setFormData(initialData);
+    }
+  }, [initialData]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
