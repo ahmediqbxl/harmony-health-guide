@@ -1,19 +1,87 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { SymptomForm, type SymptomData } from "@/components/SymptomForm";
 import { RecommendationResults, type Recommendation } from "@/components/RecommendationResults";
-import { Sparkles, Heart, Leaf } from "lucide-react";
+import { Sparkles, Heart, Leaf, User, LogOut } from "lucide-react";
 import { toast } from "sonner";
 import heroImage from "@/assets/hero-homeopathy.jpg";
 import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
+import { Session } from "@supabase/supabase-js";
 
 const Index = () => {
   const [recommendations, setRecommendations] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [lastSearchData, setLastSearchData] = useState<SymptomData | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
+  const [userProfile, setUserProfile] = useState<any>(null);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // Get current session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      if (session) {
+        fetchUserProfile(session.user.id);
+      }
+    });
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      setSession(session);
+      if (session) {
+        setTimeout(() => {
+          fetchUserProfile(session.user.id);
+        }, 0);
+      } else {
+        setUserProfile(null);
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const fetchUserProfile = async (userId: string) => {
+    const { data, error } = await supabase
+      .from("profiles")
+      .select("*")
+      .eq("id", userId)
+      .single();
+
+    if (error) {
+      console.error("Error fetching profile:", error);
+    } else {
+      setUserProfile(data);
+    }
+  };
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    toast.success("Signed out successfully");
+  };
 
   const handleSubmit = async (data: SymptomData) => {
     setIsLoading(true);
     setLastSearchData(data);
+
+    // Save to profile if user is logged in
+    if (session) {
+      const { error } = await supabase
+        .from("profiles")
+        .update({
+          conditions: data.conditions,
+          location: data.location,
+          additional_info: data.additionalInfo,
+        })
+        .eq("id", session.user.id);
+
+      if (error) {
+        console.error("Error saving profile:", error);
+      } else {
+        toast.success("Health information saved");
+      }
+    }
+    
     try {
       const { data: functionData, error: functionError } = await supabase.functions.invoke(
         'recommend-medicine',
@@ -56,6 +124,20 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-gradient-hero">
+      <div className="absolute top-4 right-4 z-10">
+        {session ? (
+          <Button variant="outline" onClick={handleSignOut} className="gap-2">
+            <LogOut className="h-4 w-4" />
+            Sign Out
+          </Button>
+        ) : (
+          <Button variant="outline" onClick={() => navigate("/auth")} className="gap-2">
+            <User className="h-4 w-4" />
+            Sign In
+          </Button>
+        )}
+      </div>
+
       {/* Hero Section */}
       {!recommendations && (
         <section className="relative py-20 px-4 overflow-hidden">
@@ -113,7 +195,13 @@ const Index = () => {
           <SymptomForm 
             onSubmit={handleSubmit} 
             isLoading={isLoading}
-            initialData={lastSearchData || undefined}
+            initialData={lastSearchData || (userProfile ? {
+              symptoms: "",
+              severity: "moderate",
+              conditions: userProfile.conditions || "",
+              additionalInfo: userProfile.additional_info || "",
+              location: userProfile.location || "",
+            } : undefined)}
           />
         )}
       </section>
