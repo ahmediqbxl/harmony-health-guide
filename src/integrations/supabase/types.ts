@@ -41,6 +41,50 @@ export type Database = {
         }
         Relationships: []
       }
+      search_history: {
+        Row: {
+          additional_info: string | null
+          conditions: string | null
+          created_at: string
+          id: string
+          location: string | null
+          recommendations: Json
+          severity: string
+          symptoms: string
+          user_id: string
+        }
+        Insert: {
+          additional_info?: string | null
+          conditions?: string | null
+          created_at?: string
+          id?: string
+          location?: string | null
+          recommendations: Json
+          severity: string
+          symptoms: string
+          user_id: string
+        }
+        Update: {
+          additional_info?: string | null
+          conditions?: string | null
+          created_at?: string
+          id?: string
+          location?: string | null
+          recommendations?: Json
+          severity?: string
+          symptoms?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "search_history_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
