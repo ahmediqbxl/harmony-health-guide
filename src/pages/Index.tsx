@@ -105,6 +105,25 @@ const Index = () => {
       }
 
       setRecommendations(functionData);
+
+      // Save to search history if user is logged in
+      if (session && functionData) {
+        const { error: historyError } = await supabase
+          .from("search_history")
+          .insert({
+            user_id: session.user.id,
+            symptoms: data.symptoms,
+            severity: data.severity,
+            conditions: data.conditions || "",
+            additional_info: data.additionalInfo || "",
+            location: data.location || "",
+            recommendations: functionData,
+          });
+
+        if (historyError) {
+          console.error("Error saving search history:", historyError);
+        }
+      }
     } catch (error) {
       console.error('Error:', error);
       toast.error("An unexpected error occurred. Please try again.");

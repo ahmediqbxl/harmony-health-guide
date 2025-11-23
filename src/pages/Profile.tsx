@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, ArrowLeft } from "lucide-react";
+import { Loader2, ArrowLeft, History } from "lucide-react";
 
 export default function Profile() {
   const navigate = useNavigate();
@@ -195,6 +195,25 @@ export default function Profile() {
                 )}
               </Button>
             </form>
+          </CardContent>
+        </Card>
+
+        <Card className="mt-6">
+          <CardHeader>
+            <CardTitle>Search History</CardTitle>
+            <CardDescription>
+              View your past symptom searches and recommendations
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button
+              variant="outline"
+              onClick={() => navigate("/history")}
+              className="w-full gap-2"
+            >
+              <History className="h-4 w-4" />
+              View Search History
+            </Button>
           </CardContent>
         </Card>
       </div>
