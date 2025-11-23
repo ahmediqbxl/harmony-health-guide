@@ -14,6 +14,44 @@ export type Database = {
   }
   public: {
     Tables: {
+      favorite_remedies: {
+        Row: {
+          created_at: string
+          description: string
+          dosage: string
+          id: string
+          name: string
+          potency: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          dosage: string
+          id?: string
+          name: string
+          potency: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          dosage?: string
+          id?: string
+          name?: string
+          potency?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "favorite_remedies_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           additional_info: string | null

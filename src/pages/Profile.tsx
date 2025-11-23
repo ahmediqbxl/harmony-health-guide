@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, ArrowLeft, History } from "lucide-react";
+import { Loader2, ArrowLeft, History, Heart } from "lucide-react";
 
 export default function Profile() {
   const navigate = useNavigate();
@@ -213,6 +213,25 @@ export default function Profile() {
             >
               <History className="h-4 w-4" />
               View Search History
+            </Button>
+          </CardContent>
+        </Card>
+
+        <Card className="mt-6">
+          <CardHeader>
+            <CardTitle>Favorite Remedies</CardTitle>
+            <CardDescription>
+              Quick access to your saved homeopathic remedies
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button
+              variant="outline"
+              onClick={() => navigate("/favorites")}
+              className="w-full gap-2"
+            >
+              <Heart className="h-4 w-4" />
+              View Favorites
             </Button>
           </CardContent>
         </Card>

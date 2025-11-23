@@ -1,10 +1,12 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ExternalLink, Package, Info, MapPin, Star, Clock, Phone, ChevronDown } from "lucide-react";
+import { ExternalLink, Package, Info, MapPin, Star, Clock, Phone, ChevronDown, Heart } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 export interface Recommendation {
   medicineName: string;
@@ -36,12 +38,102 @@ interface RecommendationResultsProps {
 
 export const RecommendationResults = ({ recommendations, localStores, onNewSearch, onEditSearch }: RecommendationResultsProps) => {
   const [openPotencyExplanations, setOpenPotencyExplanations] = useState<Record<number, boolean>>({});
+  const [savedRemedies, setSavedRemedies] = useState<Set<string>>(new Set());
+  const [session, setSession] = useState<any>(null);
+  const { toast } = useToast();
+
+  useEffect(() => {
+    loadSession();
+  }, []);
+
+  const loadSession = async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    setSession(session);
+    if (session) {
+      loadSavedRemedies(session.user.id);
+    }
+  };
+
+  const loadSavedRemedies = async (userId: string) => {
+    const { data, error } = await supabase
+      .from("favorite_remedies")
+      .select("name, potency")
+      .eq("user_id", userId);
+
+    if (!error && data) {
+      setSavedRemedies(new Set(data.map(r => `${r.name}-${r.potency}`)));
+    }
+  };
 
   const togglePotencyExplanation = (index: number) => {
     setOpenPotencyExplanations(prev => ({
       ...prev,
       [index]: !prev[index]
     }));
+  };
+
+  const handleSaveFavorite = async (recommendation: Recommendation) => {
+    if (!session) {
+      toast({
+        title: "Sign in required",
+        description: "Please sign in to save favorite remedies",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const remedyKey = `${recommendation.medicineName}-${recommendation.potency}`;
+    const isSaved = savedRemedies.has(remedyKey);
+
+    try {
+      if (isSaved) {
+        const { error } = await supabase
+          .from("favorite_remedies")
+          .delete()
+          .eq("user_id", session.user.id)
+          .eq("name", recommendation.medicineName)
+          .eq("potency", recommendation.potency);
+
+        if (error) throw error;
+
+        setSavedRemedies(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(remedyKey);
+          return newSet;
+        });
+
+        toast({
+          title: "Removed from favorites",
+          description: `${recommendation.medicineName} removed from your favorites`,
+        });
+      } else {
+        const { error } = await supabase
+          .from("favorite_remedies")
+          .insert({
+            user_id: session.user.id,
+            name: recommendation.medicineName,
+            potency: recommendation.potency,
+            description: recommendation.description,
+            dosage: recommendation.dosage,
+          });
+
+        if (error) throw error;
+
+        setSavedRemedies(prev => new Set(prev).add(remedyKey));
+
+        toast({
+          title: "Added to favorites",
+          description: `${recommendation.medicineName} saved to your favorites`,
+        });
+      }
+    } catch (error) {
+      console.error("Error toggling favorite:", error);
+      toast({
+        title: "Error",
+        description: "Failed to update favorites",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -71,6 +163,20 @@ export const RecommendationResults = ({ recommendations, localStores, onNewSearc
                       <Package className="h-6 w-6 text-primary flex-shrink-0" />
                       <span className="break-words">{recommendation.medicineName}</span>
                     </CardTitle>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => handleSaveFavorite(recommendation)}
+                      className="shrink-0"
+                    >
+                      <Heart
+                        className={`h-5 w-5 ${
+                          savedRemedies.has(`${recommendation.medicineName}-${recommendation.potency}`)
+                            ? "fill-red-500 text-red-500"
+                            : "text-muted-foreground"
+                        }`}
+                      />
+                    </Button>
                   </div>
                   <div className="flex flex-wrap gap-2">
                     <Badge variant="secondary" className="text-sm px-3 py-1 w-fit">
