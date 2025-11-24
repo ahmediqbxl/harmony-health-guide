@@ -143,24 +143,26 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-gradient-hero">
-      <div className="absolute top-4 right-4 z-10 flex items-center gap-2">
-        {session ? (
-          <>
-            <Button variant="outline" size="icon" onClick={() => navigate("/profile")}>
+      <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-sm border-b border-border">
+        <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-end gap-2">
+          {session ? (
+            <>
+              <Button variant="outline" size="icon" onClick={() => navigate("/profile")}>
+                <User className="h-4 w-4" />
+              </Button>
+              <Button variant="outline" onClick={handleSignOut} className="gap-2">
+                <LogOut className="h-4 w-4" />
+                Sign Out
+              </Button>
+            </>
+          ) : (
+            <Button variant="outline" onClick={() => navigate("/auth")} className="gap-2">
               <User className="h-4 w-4" />
+              Sign In
             </Button>
-            <Button variant="outline" onClick={handleSignOut} className="gap-2">
-              <LogOut className="h-4 w-4" />
-              Sign Out
-            </Button>
-          </>
-        ) : (
-          <Button variant="outline" onClick={() => navigate("/auth")} className="gap-2">
-            <User className="h-4 w-4" />
-            Sign In
-          </Button>
-        )}
-      </div>
+          )}
+        </div>
+      </header>
 
       {/* Hero Section */}
       {!recommendations && (
